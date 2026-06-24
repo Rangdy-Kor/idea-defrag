@@ -19,7 +19,7 @@
     "test": "tsx --test",
     "profile": "0x -D prof ./quartz/bootstrap-cli.mjs build --concurrency=1",
     "install-plugins": "npx tsx ./quartz/plugins/loader/install-plugins.ts",
-    "prebuild": "npm run install-plugins"
+    "prebuild": "npm run install-plugins",
     "vercel-build": "npx quartz plugin install && sed -i 's/import { CustomOgImagesEmitterName } from \"..\\/..\\/.quartz\\/plugins\"/const CustomOgImagesEmitterName = \"CustomOgImages\"/' quartz/components/Head.tsx && npx quartz build"
   },
   "engines": {
