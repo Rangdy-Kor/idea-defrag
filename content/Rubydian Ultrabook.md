@@ -1,7 +1,0 @@
----
-publish: true
----
-
-# Rubydian Ultrabook
-
----
