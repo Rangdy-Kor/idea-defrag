@@ -20,9 +20,9 @@ publish: true
 
 - `{Content}` ==> `[Free Input Space (String)]`
 - `{Value}` ==> `[Free Input Space (Int / Float)]`
-- `{Indent}` ==> Recommended: `__1 or More TAB Character__`
-  - `__1 or More TAB Character__`
-  - `__1 or More Space Character__`
+- `{Indent}` ==> Recommended: `[1 or More TAB Character]`
+  - `[1 or More TAB Character]`
+  - `[1 or More Space Character]`
 
 ### 구조
 
@@ -66,7 +66,7 @@ publish: true
 <p>{Content}</p>
 ```
 
-2개의 연속된 개행 문자는 새로운 `<p>` 블록으로 치환된다.
+2개의 연속된 개행 문자는 새로운 `<p>` 블록으로 치환된다. 문서 최상단 및 최하단에 빈 줄이 입력되어있을 시 비어있는 `<p>` 블록으로 치환된다.
 
 #### 줄바꿈 + 새 단락
 
@@ -88,7 +88,7 @@ publish: true
 <p>{Content}</p>
 ```
 
-$N$개 ($N \geq 3$) 이상의 연속된 개행 문자는 현재 단락 내부의 $N - 1$개의 `<br>` 태그와 새로운 `<p>` 블록으로 치환된다.
+$N$개 ($N \geq 3$) 이상의 연속된 개행 문자는 현재 `<p>` 블록 내부의 $N - 1$개의 `<br>` 태그와, 새로운 `<p>` 블록으로 치환된다.
 
 #### 이스케이프
 
@@ -106,11 +106,11 @@ $N$개 ($N \geq 3$) 이상의 연속된 개행 문자는 현재 단락 내부의
 <p>**{Content}<strong>{Content}</strong></p>
 ```
 
-1개의 역슬래시는 같은 줄 내부의 직후에 위치한 1개의 토큰을 이스케이프 처리한다. 이스케이프 처리란 파싱 단계에서 MOSAIC 문법 토큰으로 해석하지 않는 것으로 정의한다.
+1개의 역슬래시는 같은 단락 내부의 직후에 위치한 1개의 토큰을 이스케이프 처리한다. 이스케이프 처리란 파싱 단계에서 MOSAIC 문법 토큰으로 해석하지 않는 것으로 정의한다.
 
 $N$개 ($N \geq 2, N \bmod 2 = 0$)의 연속된 역슬래시는 2개씩 묶음이 나뉘어 그룹 내 전방의 역슬래시가 후방의 역슬래시를 이스케이프하는 구조가 형성되기에 직후 토큰을 이스케이프 처리하지 않게 되며, 최종적으로 역슬래시 1개로 출력된다.
 
-$N$개 ($N \geq 3, N \bmod 2 = 1$)의 연속된 역슬래시는 $N$개 ($N \geq 2, N \bmod 2 = 0$)인 경우와 같은 구조가 형성되어 $\frac{N}{2} - 1$개의 역슬래시가 출력된 후, 이스케이프 처리되지 않은 최후방 역슬래시가 직후에 위치한 1개의 토큰을 이스케이프 처리한다.
+$N$개 ($N \geq 3, N \bmod 2 = 1$)의 연속된 역슬래시는 $N$개 ($N \geq 2, N \bmod 2 = 0$)인 경우와 같은 구조가 형성되어 $\frac{N - 1}{2}$개의 역슬래시가 출력된 후, 이스케이프 처리되지 않은 최후방 역슬래시가 직후에 위치한 1개의 토큰을 이스케이프 처리한다.
 
 #### 중첩 문법
 
@@ -128,7 +128,25 @@ $N$개 ($N \geq 3, N \bmod 2 = 1$)의 연속된 역슬래시는 $N$개 ($N \geq 
 <strong><del>{Content}</del></strong>
 ```
 
-다단계로 중첩된 인라인 문법은 토큰과 HTML 태그의 깊이가 1:1로 치환된다. 중첩 문법이 잘못된 경우에도 파서는 교정하지 않으며, 브라우저에게 교정을 위임한다.
+다단계로 중첩된 문법은 토큰과 HTML 태그의 깊이와 1:1로 치환된다. 중첩 문법이 잘못된 경우에도 파서는 교정하지 않으며, 브라우저에게 교정을 위임한다.
+
+#### 닫히지 않은 태그
+
+---
+
+- **입력**
+
+```
+**{Content}
+```
+
+- **출력**
+
+```html
+<strong>{Content}
+```
+
+닫히지 않은 잘못된 토큰은 파서의 개입 없이 HTML로 1:1로 치환하여 브라우저에게 교정을 위임한다.
 
 ### 텍스트
 
@@ -298,7 +316,7 @@ _{Content}_
 <ruby>{Content}<rt>{Content}</rt></ruby>
 ```
 
-쌍을 이루는 2개의 캐럿은 1개의 `<ruby>` 블록으로 치환되며, 내부의 파이프라인 뒤의 문자열은 `<rt>` 블록 안에 위치한다.
+쌍을 이루는 2개의 캐럿은 1개의 `<ruby>` 블록으로 치환되며, 내부의 파이프 뒤의 문자열은 `<rt>` 블록 안에 위치한다. 만약 2개 이상의 파이프가 존재할 경우 첫 번째 파이프만이 구분자로서 해석된다.
 
 ##### 하단 루비 문자
 
@@ -316,7 +334,7 @@ __{Content}|{Content}__
 <ruby style="ruby-position: under;">{Content}<rt>{Content}</rt></ruby>
 ```
 
-쌍을 이루는 2개의 밑줄은 1개의 `<ruby style="ruby-position: under;">` 블록으로 치환되며, 내부의 파이프라인 직후 문자열은 `<rt>` 블록 안에 위치한다.
+쌍을 이루는 2개의 밑줄은 1개의 `<ruby style="ruby-position: under;">` 블록으로 치환되며, 이외에는 상단 루비 문자와 동일하다.
 
 #### 색상
 
@@ -344,7 +362,7 @@ __{Content}|{Content}__
 - **출력**
 
 ```html
-<span style="color: {ColorCode};">Content</span>
+<span style="color: {ColorCode};">{Content}</span>
 ```
 
 쌍을 이루는 2개의 더하기 기호는 `<span style="color: {ColorCode};">` 블록으로 치환되며, `{ColorCode}`는 내부의 파이프라인 직전 문자열로 결정된다. 내부의 파이프라인 직후 문자열은 해당 블록 안에 위치한다. `{ColorCode}`가 생략되거나 잘못되더라도 파서는 교정하지 않으며, 브라우저에게 교정을 위임한다.
@@ -362,10 +380,10 @@ __{Content}|{Content}__
 - **출력**
 
 ```html
-<span style="background-color: {ColorCode};">Content</span>
+<mark style="background-color: {ColorCode};">{Content}</mark>
 ```
 
-쌍을 이루는 2개의 등호 기호는 `<span style="background-color: {ColorCode};">` 블록으로 치환되며, `{ColorCode}`는 내부의 파이프라인 직전 문자열로 결정된다. 내부의 파이프라인 직후 문자열은 해당 블록 안에 위치한다. `{ColorCode}`가 생략되거나 잘못되더라도 파서는 교정하지 않으며, 브라우저에게 교정을 위임한다.
+쌍을 이루는 2개의 등호 기호는 `<span style="background-color: {ColorCode};">` 블록으로 치환되며, 이외에는 글자 색상과 동일하다.
 
 #### 크기
 
@@ -394,4 +412,8 @@ __{Content}|{Content}__
 <span style="font-size: {Value}{Unit}">Content</span>
 ```
 
-쌍을 이루는 2개의 백분율 기호는 `<span style="font-size: {Value}{Unit}">` 블록으로 치환되며, `{Value}{Unit}`는 내부의 파이프라인 직전 문자열로 결정된다. 내부의 파이프라인 직후 문자열은 해당 블록 안에 위치한다. `{ColorCode}`가 생략되거나 잘못되더라도 파서는 교정하지 않으며, 브라우저에게 교정을 위임한다.
+쌍을 이루는 2개의 백분율 기호는 `<span style="font-size: {Value}{Unit}">` 블록으로 치환되며, `{Value}{Unit}`는 내부의 파이프라인 직전 문자열로 결정된다. 내부의 파이프라인 직후 문자열은 해당 블록 안에 위치한다. `{Value}`가 생략되거나 음수일 경우에도 파서는 교정하지 않으며, 브라우저에게 교정을 위임한다. `{Unit}`을 생략할 경우 `rem`이 자동으로 사용된다.
+
+### 리스트
+
+---
