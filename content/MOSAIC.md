@@ -12,16 +12,27 @@ publish: true
 
 > [!IMPORTANT] Monolithic. Original. Symbolic. Abstract. Intuitive. Contextual. <br>HTML 없이도 자유롭도록, CSS 없이도 꾸밀 수 있도록, JavaScript 없이도 읽을 수 있도록.
 
+## 🎯 철학
+
+---
+
+1. MOSAIC는 작성자의 입력을 최대한 보존한다.
+2. MOSAIC 파서는 최소한의 해석만을 수행한다.
+3. 문법 오류의 복구를 HTML 파서에게 위임한다.
+4. HTML 및 CSS의 표준 동작을 활용한다.
+5. 문법은 가능한 한 규칙적이고 예측 가능하게 설계한다.
+6. 하나의 문법은 하나의 HTML 요소 (필요한 경우 CSS 포함)로 변환되는 것을 원칙으로 한다.
+
 ## 🔠 문법
 
 ---
 
 **자리 표시자**
 
-- `{Content}` ==> `[Free Input Space (String)]`
-- `{Value}` ==> `[Free Input Space (Int / Float)]`
-- `{Indent}` ==> Recommended: `[1 or More TAB Character]`
-  - `[1 or More TAB Character]`
+- `{Content}` ::= `[Arbitrary String]`
+- `{Value}` ::= `[Integer | Float]`
+- `{Indent}` ::=
+  - `[1 or More TAB Character]` (Recommended)
   - `[1 or More Space Character]`
 
 ### 구조
@@ -42,10 +53,10 @@ publish: true
 - **출력**
 
 ```html
-<p>{Content}<br></p>
+<p>{Content}<br>{Content}</p>
 ```
 
-1개의 개행 문자는 현재 단락 내부의 1개의 `<br>` 태그으로 치환된다.
+1개의 개행 문자는 현재 단락 내부의 1개의 `<br>` 태그로 치환된다.
 
 #### 새 단락
 
@@ -66,7 +77,7 @@ publish: true
 <p>{Content}</p>
 ```
 
-2개의 연속된 개행 문자는 새로운 `<p>` 블록으로 치환된다. 문서 최상단 및 최하단에 빈 줄이 입력되어있을 시 비어있는 `<p>` 블록으로 치환된다.
+2개의 연속된 개행 문자는 새로운 `<p>` 블록으로 치환된다.
 
 #### 줄바꿈 + 새 단락
 
@@ -88,7 +99,7 @@ publish: true
 <p>{Content}</p>
 ```
 
-$N$개 ($N \geq 3$) 이상의 연속된 개행 문자는 현재 `<p>` 블록 내부의 $N - 1$개의 `<br>` 태그와, 새로운 `<p>` 블록으로 치환된다.
+$N$개 ($N \geq 3$) 이상의 연속된 개행 문자는 현재 `<p>` 블록 내부의 $N - 2$개의 `<br>` 태그와, 새로운 `<p>` 블록으로 치환된다. 문서의 최상단 및 최하단에 존재하는 연속된 개행 문자에도 동일한 규칙이 적용된다.
 
 #### 이스케이프
 
@@ -146,7 +157,7 @@ $N$개 ($N \geq 3, N \bmod 2 = 1$)의 연속된 역슬래시는 $N$개 ($N \geq 
 <strong>{Content}
 ```
 
-닫히지 않은 잘못된 토큰은 파서의 개입 없이 HTML로 1:1로 치환하여 브라우저에게 교정을 위임한다.
+닫는 토큰이 존재하지 않는 열린 토큰은 파서의 개입 없이 HTML로 1:1로 치환하여 브라우저에게 교정을 위임한다.
 
 ### 텍스트
 
@@ -172,7 +183,7 @@ $N$개 ($N \geq 3, N \bmod 2 = 1$)의 연속된 역슬래시는 $N$개 ($N \geq 
 <strong>{Content}</strong>
 ```
 
-쌍을 이루는 2개의 연속된 별표는 1개의 `<strong>` 블록으로 치환된다.
+서로 대응되는 2개의 연속된 별표는 1개의 `<strong>` 요소로 치환된다.
 
 ##### 이탤릭
 
@@ -190,7 +201,7 @@ $N$개 ($N \geq 3, N \bmod 2 = 1$)의 연속된 역슬래시는 $N$개 ($N \geq 
 <em>{Content}</em>
 ```
 
-쌍을 이루는 1개의 별표는 1개의 `<em>` 블록으로 치환된다.
+서로 대응되는 1개의 별표는 1개의 `<em>` 요소로 치환된다.
 
 ##### 볼드 + 이탤릭
 
@@ -208,7 +219,7 @@ $N$개 ($N \geq 3, N \bmod 2 = 1$)의 연속된 역슬래시는 $N$개 ($N \geq 
 <strong><em>{Content}</em></strong>
 ```
 
-쌍을 이루는 3개의 별표는 1개의 `<strong>` 블록 내부의 1개의 `<em>` 블록으로 치환된다.
+서로 대응되는 3개의 별표는 1개의 `<strong>` 요소 내부의 1개의 `<em>` 요소로 치환된다.
 
 ##### 취소선
 
@@ -226,7 +237,7 @@ $N$개 ($N \geq 3, N \bmod 2 = 1$)의 연속된 역슬래시는 $N$개 ($N \geq 
 <del>{Content}</del>
 ```
 
-쌍을 이루는 2개의 연속된 물결표는 1개의 `<del>` 블록으로 치환된다.
+서로 대응되는 2개의 연속된 물결표는 1개의 `<del>` 요소로 치환된다.
 
 ##### 밑줄
 
@@ -244,7 +255,7 @@ $N$개 ($N \geq 3, N \bmod 2 = 1$)의 연속된 역슬래시는 $N$개 ($N \geq 
 <ins>{Content}</ins>
 ```
 
-쌍을 이루는 1개의 물결표는 1개의 `<ins>` 블록으로 치환된다.
+서로 대응되는 1개의 물결표는 1개의 `<ins>` 요소로 치환된다.
 
 ##### 취소선 + 밑줄
 
@@ -262,7 +273,7 @@ $N$개 ($N \geq 3, N \bmod 2 = 1$)의 연속된 역슬래시는 $N$개 ($N \geq 
 <del><ins>{Content}</ins></del>
 ```
 
-쌍을 이루는 3개의 물결표는 1개의 `<del>` 블록 내부의 1개의 `<ins>` 블록으로 치환된다.
+서로 대응되는 3개의 물결표는 1개의 `<del>` 요소 내부의 1개의 `<ins>` 요소로 치환된다.
 
 ##### 위 첨자
 
@@ -280,7 +291,7 @@ $N$개 ($N \geq 3, N \bmod 2 = 1$)의 연속된 역슬래시는 $N$개 ($N \geq 
 <sup>{Content}</sup>
 ```
 
-쌍을 이루는 1개의 캐럿은 1개의 `<sup>` 블록으로 치환된다.
+서로 대응되는 1개의 캐럿은 1개의 `<sup>` 요소로 치환된다.
 
 ##### 아래 첨자
 
@@ -298,7 +309,7 @@ _{Content}_
 <sub>{Content}</sub>
 ```
 
-쌍을 이루는 1개의 밑줄은 1개의 `<sub>` 블록으로 치환된다.
+서로 대응되는 1개의 밑줄은 1개의 `<sub>` 요소로 치환된다.
 
 ##### 상단 루비 문자
 
@@ -316,7 +327,7 @@ _{Content}_
 <ruby>{Content}<rt>{Content}</rt></ruby>
 ```
 
-쌍을 이루는 2개의 캐럿은 1개의 `<ruby>` 블록으로 치환되며, 내부의 파이프 뒤의 문자열은 `<rt>` 블록 안에 위치한다. 만약 2개 이상의 파이프가 존재할 경우 첫 번째 파이프만이 구분자로서 해석된다.
+서로 대응되는 2개의 캐럿은 1개의 `<ruby>` 요소로 치환되며, 첫 번째 파이프 이후의 문자열은 `<rt>` 요소 안에 위치한다. 만약 2개 이상의 파이프가 존재할 경우 첫 번째 파이프만이 구분자로서 해석된다.
 
 ##### 하단 루비 문자
 
@@ -334,20 +345,20 @@ __{Content}|{Content}__
 <ruby style="ruby-position: under;">{Content}<rt>{Content}</rt></ruby>
 ```
 
-쌍을 이루는 2개의 밑줄은 1개의 `<ruby style="ruby-position: under;">` 블록으로 치환되며, 이외에는 상단 루비 문자와 동일하다.
+서로 대응되는 2개의 밑줄은 1개의 `<ruby style="ruby-position: under;">` 요소로 치환되며, 이외에는 상단 루비 문자와 동일하다.
 
 #### 색상
 
 ---
 
-**자리표시자**
+**자리 표시자**
 
-- `{ColorCode}` ==> Default: `[CSS Color Name]`
+- `{ColorCode}` ::=
+  - `[CSS Color Name]` (Default)
   - `#[Hex Code]`
   - `#[Short Hex Code]`
   - `#[Alpha Hex Code]`
   - `#[Short Alpha Hex Code]`
-  - `[CSS Color Name]`
 
 ##### 글자 색상
 
@@ -365,7 +376,7 @@ __{Content}|{Content}__
 <span style="color: {ColorCode};">{Content}</span>
 ```
 
-쌍을 이루는 2개의 더하기 기호는 `<span style="color: {ColorCode};">` 블록으로 치환되며, `{ColorCode}`는 내부의 파이프라인 직전 문자열로 결정된다. 내부의 파이프라인 직후 문자열은 해당 블록 안에 위치한다. `{ColorCode}`가 생략되거나 잘못되더라도 파서는 교정하지 않으며, 브라우저에게 교정을 위임한다.
+서로 대응되는 2개의 더하기 기호는 `<span style="color: {ColorCode};">` 요소로 치환되며, `{ColorCode}`는 내부의 파이프라인 직전 문자열로 결정된다. 내부의 파이프라인 직후 문자열은 해당 요소 안에 위치한다. `{ColorCode}`가 생략되거나 잘못되더라도 파서는 교정하지 않으며, 브라우저에게 교정을 위임한다.
 
 ##### 하이라이트
 
@@ -383,7 +394,7 @@ __{Content}|{Content}__
 <mark style="background-color: {ColorCode};">{Content}</mark>
 ```
 
-쌍을 이루는 2개의 등호 기호는 `<span style="background-color: {ColorCode};">` 블록으로 치환되며, 이외에는 글자 색상과 동일하다.
+서로 대응되는 2개의 등호 기호는 `<mark style="background-color: {ColorCode};">` 요소로 치환되며, 이외에는 글자 색상과 동일하다.
 
 #### 크기
 
@@ -391,8 +402,8 @@ __{Content}|{Content}__
 
 **자리 표시자**:
 
-- `{Unit}` ==> Default: `rem`
-  - `rem`
+- `{Unit}` ::=
+  - `rem` (Default)
   - `em`
   - `px`
 
@@ -409,11 +420,7 @@ __{Content}|{Content}__
 - **출력**
 
 ```html
-<span style="font-size: {Value}{Unit}">Content</span>
+<span style="font-size: {Value}{Unit};">{Content}</span>
 ```
 
-쌍을 이루는 2개의 백분율 기호는 `<span style="font-size: {Value}{Unit}">` 블록으로 치환되며, `{Value}{Unit}`는 내부의 파이프라인 직전 문자열로 결정된다. 내부의 파이프라인 직후 문자열은 해당 블록 안에 위치한다. `{Value}`가 생략되거나 음수일 경우에도 파서는 교정하지 않으며, 브라우저에게 교정을 위임한다. `{Unit}`을 생략할 경우 `rem`이 자동으로 사용된다.
-
-### 리스트
-
----
+서로 대응되는 2개의 백분율 기호는 `<span style="font-size: {Value}{Unit}">` 요소로 치환되며, `{Value}{Unit}`는 내부의 파이프라인 직전 문자열로 결정된다. 내부의 파이프라인 직후 문자열은 해당 요소 안에 위치한다. `{Value}`가 생략되거나 음수일 경우에도 파서는 교정하지 않으며, 브라우저에게 교정을 위임한다. `{Unit}`을 생략할 경우 `rem`이 자동으로 사용된다.
